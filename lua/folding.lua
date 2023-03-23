@@ -86,7 +86,7 @@ function M.fold_handler(err, result, ctx, config)
   local current_bufnr = api.nvim_get_current_buf()
   -- Discard the folding result if buffer focus has changed since the request was
   -- done.
-  if current_bufnr == ctx.bufnr then
+  if current_bufnr == ctx.bufnr and result ~= nil then
     if err == nil and result == nil then
       -- client wont return a valid result in early stages after initialization
       -- XXX: this is dirty
