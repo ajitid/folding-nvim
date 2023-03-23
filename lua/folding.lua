@@ -20,31 +20,27 @@ M.servers_supporting_folding = {
 M.active_folding_clients = {}
 
 
-function M.on_attach()
-  M.setup_plugin()
+function M.on_attach(client)
+  M.setup_plugin(client)
   M.update_folds()
 end
 
 
-function M.setup_plugin()
+function M.setup_plugin(client)
   api.nvim_command("augroup FoldingCommand")
     api.nvim_command("autocmd! * <buffer>")
     api.nvim_command("autocmd BufEnter <buffer> lua require'folding'.update_folds()")
     api.nvim_command("autocmd BufWritePost <buffer> lua require'folding'.update_folds()")
   api.nvim_command("augroup end")
 
-  local clients = vim.lsp.buf_get_clients()
-
-  for _, client in pairs(clients) do
-    local client_id = client['id']
-    if M.active_folding_clients[client_id] == nil then
-      local server_supports_folding = client['server_capabilities']['foldingRangeProvider'] or false
-      if not server_supports_folding then
-        api.nvim_command(string.format('echom "lsp-folding: %s does not provide folding requests"', client['name']))
-      end
-
-      M.active_folding_clients[client_id] = server_supports_folding
+  local client_id = client['id']
+  if M.active_folding_clients[client_id] == nil then
+    local server_supports_folding = client['server_capabilities']['foldingRangeProvider'] or false
+    if not server_supports_folding then
+      api.nvim_command(string.format('echom "lsp-folding: %s does not provide folding requests"', client['name']))
     end
+
+    M.active_folding_clients[client_id] = server_supports_folding
   end
 end
 
